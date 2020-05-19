@@ -155,3 +155,87 @@ addEventListener(
 );
 
 // Settings Menu
+function settingsLoop() {
+    if (arrowReleased || arrowDelay >= 6) {
+        if (settingsArrow)
+            settings[s] = settings[s] === 0 ? setting[s].length - 1 : settings[s] - 1;
+        else
+            settings[s] = settings[s] === setting[s].length - 1 ? 0 : settings[s] + 1;
+        saveSetting(s);
+        arrowReleased = false;
+    } else {
+        arrowDelay++;
+    }
+    setLoop = setTimeout(settingsLoop, 50);
+};
+
+var s;
+var settingsArrow;
+
+function arrowRelease() {
+    resize();
+    arrowReleased = true;
+    arrowDelay = 0;
+    clearTimeout(setLoop);
+};
+
+function left() {
+    settingsArrow = 1;
+    s = this.parentNode.id;
+    this.onMouseUp = arrowRelease;
+    this.onMouseOut = arrowRelease;
+    settingsLoop();
+};
+
+
+function right() {
+    settingsArrow = 0;
+    s = this.parentNode.id;
+    this.onMouseUp = arrowRelease;
+    this.onMouseOut = arrowRelease;
+    settingsLoop();
+};
+
+// Functions for Local Storage
+function loadLocalData() {
+    if (localStorage["binds"]) {
+        binds = JSON.parse(localStorage.getItem("binds"));
+        for (var i = 0, length = controlCells.length; i < length; i++) {
+            controlCells[i].innerHTML = key[binds[controlCells[i].id]];
+        }
+    }
+
+    if (localStorage["version"] !== version) {
+        localStorage.removeItem("settings");
+        localStorage.removeItem("binds");
+    }
+
+    if (localStorage["settings"]) {
+        settings = JSON.parse(localStorage.getItem("settings"));
+    }
+}
+
+loadLocalData();
+for (var s in settings) {
+    var div = document.createElement('div');
+    var b = document.createElement('b');
+    var iLeft = document.createElement('i');
+    var span = document.createElement('span');
+    var iRight = document.createElement('i');
+
+    div.id = s;
+    b.innerHTML = s + ":";
+    span.innerHTML = setting[s][settings[s]];
+    iLeft.className = 'left';
+    iRight.className = 'right';
+    iLeft.onmousedown = left;
+    iRight.onmousedown = right;
+
+    set.appendChild(div);
+    div.appendChild(b);
+    div.appendChild(iLeft);
+    div.appendChild(span);
+    div.appendChild(iRight);
+};
+
+resize();
